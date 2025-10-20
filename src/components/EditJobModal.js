@@ -33,14 +33,15 @@ function EditJobModal({ closeModal, refreshJobs, token, job }) {
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/api/jobs/${job._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ companyName, jobTitle, applicationDate, status }),
-      });
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/jobs/${job._id}`, {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify({ companyName, jobTitle, applicationDate, status }),
+});
+
 
       const data = await res.json();
 

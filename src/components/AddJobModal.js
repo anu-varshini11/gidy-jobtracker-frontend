@@ -34,14 +34,14 @@ function AddJobModal({ closeModal, refreshJobs, token }) {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/jobs', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ companyName, jobTitle, applicationDate, status }),
-      });
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/jobs`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify({ companyName, jobTitle, applicationDate, status }),
+});
 
       const data = await res.json();
 
