@@ -7,20 +7,19 @@ function AddJobModal({ closeModal, refreshJobs, token }) {
   const [status, setStatus] = useState('Applied');
   const [error, setError] = useState('');
 
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Frontend validation
     if (!companyName.trim() || companyName.trim().length < 3) {
       setError('Company name must be at least 3 characters.');
       return;
     }
-
     if (!jobTitle.trim()) {
       setError('Job title is required.');
       return;
     }
-
     if (!applicationDate) {
       setError('Application date is required.');
       return;
@@ -34,17 +33,16 @@ function AddJobModal({ closeModal, refreshJobs, token }) {
     }
 
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/jobs`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  },
-  body: JSON.stringify({ companyName, jobTitle, applicationDate, status }),
-});
+      const res = await fetch(`${API_URL}/api/jobs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ companyName, jobTitle, applicationDate, status }),
+      });
 
       const data = await res.json();
-
       if (res.ok) {
         refreshJobs();
         closeModal();
@@ -63,45 +61,30 @@ function AddJobModal({ closeModal, refreshJobs, token }) {
         <h3>Add New Job</h3>
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <form onSubmit={handleSubmit}>
-          <div>
-            <input
-              type="text"
-              placeholder="Company Name"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-            />
-            <small style={{ color: '#666' }}>Minimum 3 characters</small>
-          </div>
-
-          <div>
-            <input
-              type="text"
-              placeholder="Job Title"
-              value={jobTitle}
-              onChange={(e) => setJobTitle(e.target.value)}
-            />
-            <small style={{ color: '#666' }}>Required</small>
-          </div>
-
-          <div>
-            <input
-              type="date"
-              value={applicationDate}
-              onChange={(e) => setApplicationDate(e.target.value)}
-            />
-            <small style={{ color: '#666' }}>Cannot be a future date</small>
-          </div>
-
-          <div>
-            <select value={status} onChange={(e) => setStatus(e.target.value)}>
-              <option>Applied</option>
-              <option>Interview</option>
-              <option>Offer</option>
-              <option>Rejected</option>
-            </select>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+          <input
+            type="text"
+            placeholder="Company Name"
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Job Title"
+            value={jobTitle}
+            onChange={(e) => setJobTitle(e.target.value)}
+          />
+          <input
+            type="date"
+            value={applicationDate}
+            onChange={(e) => setApplicationDate(e.target.value)}
+          />
+          <select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option>Applied</option>
+            <option>Interview</option>
+            <option>Offer</option>
+            <option>Rejected</option>
+          </select>
+          <div style={{ marginTop: '10px', textAlign: 'right' }}>
             <button type="submit">Add</button>
             <button type="button" onClick={closeModal} style={{ marginLeft: '8px' }}>
               Cancel

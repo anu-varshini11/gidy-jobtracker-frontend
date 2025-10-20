@@ -9,7 +9,7 @@ function ViewJobModal({ closeModal, job }) {
         <p><strong>Job Title:</strong> {job.jobTitle}</p>
         <p><strong>Application Date:</strong> {new Date(job.applicationDate).toLocaleDateString()}</p>
         <p><strong>Status:</strong> {job.status}</p>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+        <div style={{ textAlign: 'right', marginTop: '10px' }}>
           <button onClick={closeModal}>Close</button>
         </div>
       </div>

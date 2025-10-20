@@ -15,44 +15,47 @@ function Home() {
   const token = localStorage.getItem('token');
   const userName = localStorage.getItem('userName');
 
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
   useEffect(() => {
     if (!token) navigate('/login');
     fetchJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, navigate]);
 
   const fetchJobs = async () => {
-  try {
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/jobs`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    if (data.jobs) setJobs(data.jobs);
-  } catch (err) {
-    console.error(err);
-  }
-};
+    try {
+      const res = await fetch(`${API_URL}/api/jobs`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.jobs) setJobs(data.jobs);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userName');
-    navigate('/login');
+    window.location.href = '/login';
   };
 
   const handleDelete = async (jobId) => {
-  if (!window.confirm('Are you sure you want to delete this job?')) return;
-  try {
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/jobs/${jobId}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    if (data.success) setJobs(jobs.filter(job => job._id !== jobId));
-    else alert('Failed to delete job');
-  } catch (err) {
-    console.error(err);
-    alert('Server error while deleting job');
-  }
-};
+    if (!window.confirm('Are you sure you want to delete this job?')) return;
+    try {
+      const res = await fetch(`${API_URL}/api/jobs/${jobId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) setJobs(jobs.filter(job => job._id !== jobId));
+      else alert('Failed to delete job');
+    } catch (err) {
+      console.error(err);
+      alert('Server error while deleting job');
+    }
+  };
 
   const filteredJobs = filter === 'All' ? jobs : jobs.filter(job => job.status === filter);
 

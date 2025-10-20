@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 function Signup() {
-  const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', username: '', password: '' });
   const [errors, setErrors] = useState({});
   const [usernameAvailable, setUsernameAvailable] = useState(null); // null, true, false
+
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -17,51 +18,52 @@ function Signup() {
   };
 
   const checkUsername = async username => {
-  try {
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/auth/check-username/${username}`);
-    const data = await res.json();
-    setUsernameAvailable(data.available);
-  } catch (err) {
-    console.error(err);
-    setUsernameAvailable(null);
-  }
-};
-
-const handleSubmit = async e => {
-  e.preventDefault();
-  let tempErrors = {};
-  if (!form.name.trim()) tempErrors.name = 'Name cannot be empty';
-  if (!form.username) tempErrors.username = 'Username required';
-  else if (!/^[A-Za-z][A-Za-z0-9]{2,}$/.test(form.username))
-    tempErrors.username = 'Username must start with a letter and have at least 3 characters';
-  if (!form.password) tempErrors.password = 'Password required';
-  else if (form.password.length < 6) tempErrors.password = 'Password must be at least 6 characters';
-
-  if (Object.keys(tempErrors).length > 0) {
-    setErrors(tempErrors);
-    return;
-  }
-
-  try {
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/auth/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setErrors({ general: data.message || 'Signup failed' });
-    } else {
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userName', data.user.name);
-      navigate('/'); // Redirect to Home
+    try {
+      const res = await fetch(`${API_URL}/api/auth/check-username/${username}`);
+      const data = await res.json();
+      setUsernameAvailable(data.available);
+    } catch (err) {
+      console.error(err);
+      setUsernameAvailable(null);
     }
-  } catch (err) {
-    console.error(err);
-    setErrors({ general: 'Server error' });
-  }
-};
+  };
 
+  const handleSubmit = async e => {
+    e.preventDefault();
+    let tempErrors = {};
+
+    if (!form.name.trim()) tempErrors.name = 'Name cannot be empty';
+    if (!form.username) tempErrors.username = 'Username required';
+    else if (!/^[A-Za-z][A-Za-z0-9]{2,}$/.test(form.username))
+      tempErrors.username = 'Username must start with a letter and have at least 3 characters';
+    if (!form.password) tempErrors.password = 'Password required';
+    else if (form.password.length < 6) tempErrors.password = 'Password must be at least 6 characters';
+
+    if (Object.keys(tempErrors).length > 0) {
+      setErrors(tempErrors);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/auth/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrors({ general: data.message || 'Signup failed' });
+      } else {
+        // Save token & user name then full reload so App picks up token
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userName', data.user?.name || data.user?.username || '');
+        window.location.href = '/';
+      }
+    } catch (err) {
+      console.error(err);
+      setErrors({ general: 'Server error' });
+    }
+  };
 
   return (
     <div className="form">
